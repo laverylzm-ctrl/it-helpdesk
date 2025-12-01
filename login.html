@@ -1,0 +1,103 @@
+<!-- #form login
+Isi di bawah hastag ini adalah code untuk form login -->
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Login - Helpdesk IT Support</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- #Container Login -->
+    <div class="login-container">
+      <!-- #Login Box -->
+      <div class="login-box">
+        <!-- #Judul Login -->
+        <h1 class="login-title">Helpdesk IT Support</h1>
+
+        <!-- #button admin
+      Isi di bawah ini code button admin -->
+        <button class="btn-role btn-admin" onclick="showAdminLogin()">
+          Admin
+        </button>
+
+        <!-- #button user
+      Isi di bawah ini code button user -->
+        <button class="btn-role btn-user" onclick="loginAsUser()">User</button>
+
+        <!-- #Modal Login Admin -->
+        <div id="adminModal" class="modal">
+          <div class="modal-content">
+            <span class="close" onclick="closeAdminModal()">&times;</span>
+            <h2>Login Admin</h2>
+            <form id="adminLoginForm" onsubmit="loginAsAdmin(event)">
+              <div class="form-group">
+                <label for="username">Username</label>
+                <input id="username" class="input-field" required />
+              </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                  id="password"
+                  type="password"
+                  class="input-field"
+                  required
+                />
+              </div>
+              <!-- #button login -->
+              <button class="btn-submit" type="submit">Login</button>
+              <p id="errorMessage" class="error-message"></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- #Script Login -->
+    <script>
+      function showAdminLogin() {
+        document.getElementById("adminModal").style.display = "flex";
+      }
+      function closeAdminModal() {
+        document.getElementById("adminModal").style.display = "none";
+        document.getElementById("errorMessage").textContent = "";
+        document.getElementById("adminLoginForm").reset();
+      }
+
+      // Dummy admin account:
+      // username: admin1
+      // password: admin1
+      function loginAsAdmin(e) {
+        e.preventDefault();
+        const u = document.getElementById("username").value.trim();
+        const p = document.getElementById("password").value.trim();
+        if (u === "admin1" && p === "admin1") {
+          localStorage.setItem("userRole", "admin");
+          window.location.href = "app.html";
+        } else {
+          document.getElementById("errorMessage").textContent =
+            "Username atau password salah!";
+        }
+      }
+
+      function loginAsUser() {
+        localStorage.setItem("userRole", "user");
+        window.location.href = "app.html";
+      }
+
+      // close when click outside modal
+      window.onclick = function (event) {
+        const modal = document.getElementById("adminModal");
+        if (event.target === modal) closeAdminModal();
+      };
+
+      // if already logged in, langsung ke app
+      if (localStorage.getItem("userRole")) {
+        // jangan otomatis redirect jika ingin selalu ke login; tapi sesuai requirement:
+        // langsung masuk ke app
+        window.location.href = "app.html";
+      }
+    </script>
+  </body>
+</html>

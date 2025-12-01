@@ -1,0 +1,620 @@
+<!-- #app main
+Isi di bawah hastag ini adalah code untuk aplikasi utama (dashboard, permintaan, riwayat) -->
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Helpdesk IT Support</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- #Navbar -->
+    <nav class="navbar">
+      <div class="navbar-brand">Helpdesk IT Support</div>
+      <div class="navbar-menu">
+        <button class="nav-btn active" data-page="dashboard">Dashboard</button>
+        <button class="nav-btn" data-page="permintaan">
+          Permintaan Helpdesk
+        </button>
+        <button class="nav-btn" data-page="riwayat">Riwayat Permintaan</button>
+      </div>
+      <button class="btn-logout" id="logoutBtn">Logout</button>
+    </nav>
+
+    <!-- #Container Utama -->
+    <div class="main-container">
+      <!-- #Dashboard Page -->
+      <div id="dashboard" class="page active">
+        <div class="dashboard-header">
+          <h1>Selamat Datang, Butuh Bantuan?</h1>
+          <p>
+            Sistem managemen Helpdesk IT Support akan membantu menyelesaikan
+            masalah anda
+          </p>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- #Dalam Antrian -->
+          <div class="status-column">
+            <div class="status-header border-red">
+              <h2>Dalam Antrian</h2>
+              <p class="total-count" id="totalAntrian">0 total permintaan</p>
+            </div>
+            <div class="ticket-list" id="antrianList"></div>
+          </div>
+
+          <!-- #Sedang Dikerjakan -->
+          <div class="status-column">
+            <div class="status-header border-yellow">
+              <h2>Sedang Dikerjakan</h2>
+              <p class="total-count" id="totalDikerjakan">0 total permintaan</p>
+            </div>
+            <div class="ticket-list" id="dikerjakanList"></div>
+          </div>
+
+          <!-- #Selesai -->
+          <div class="status-column">
+            <div class="status-header border-green">
+              <h2>Selesai</h2>
+              <p class="total-count" id="totalSelesai">0 total permintaan</p>
+            </div>
+            <div class="ticket-list" id="selesaiList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- #Permintaan Page -->
+      <div id="permintaan" class="page">
+        <h1 class="page-form-title">Form Permintaan Helpdesk</h1>
+        <form id="formPermintaan" class="form-permintaan">
+          <div class="form-group">
+            <label for="judulMasalah">Judul Masalah</label>
+            <input id="judulMasalah" class="input-field" required />
+          </div>
+
+          <div class="form-group">
+            <label for="deskripsiMasalah">Deskripsi Masalah</label>
+            <textarea
+              id="deskripsiMasalah"
+              class="input-field textarea-field"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="ruangan">Ruangan</label>
+            <select id="ruangan" class="input-field select-field" required>
+              <option value="">Pilih Ruangan</option>
+              <option>Ruang Server</option>
+              <option>Ruang Kantor A</option>
+              <option>Ruang Kantor B</option>
+              <option>Ruang Meeting</option>
+              <option>Ruang Direktur</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="kategori">Kategori</label>
+            <select id="kategori" class="input-field select-field" required>
+              <option value="">Pilih Kategori</option>
+              <option>Jaringan</option>
+              <option>Komputer</option>
+              <option>Printer</option>
+              <option>Software</option>
+              <option>Lainnya</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="lampiran">Lampiran (Opsional)</label>
+            <input
+              id="lampiran"
+              class="input-field file-field"
+              type="file"
+              accept="image/*"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="nomorWhatsapp">Nomor WhatsApp</label>
+            <input id="nomorWhatsapp" class="input-field" type="tel" required />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email (Opsional)</label>
+            <input id="email" class="input-field" type="email" />
+          </div>
+
+          <button class="btn-submit-form" type="submit">
+            Kirim Permintaan
+          </button>
+        </form>
+      </div>
+
+      <!-- #Riwayat Page -->
+      <div id="riwayat" class="page">
+        <h1 class="page-history-title">Riwayat Permintaan Helpdesk</h1>
+        <p class="page-history-subtitle">
+          Lihat dan kelola semua permintaan helpdesk yang telah dibuat
+        </p>
+
+        <div class="table-container">
+          <table class="riwayat-table">
+            <thead>
+              <tr>
+                <th>ID Laporan</th>
+                <th>Judul Masalah</th>
+                <th>Tanggal Pengajuan</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="riwayatTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- #Modal Konfirmasi Permintaan -->
+    <div id="konfirmasiModal" class="modal">
+      <div class="modal-content-success">
+        <h2>Permintaan Berhasil Dibuat</h2>
+        <div class="modal-actions">
+          <button class="btn-modal" id="btnBatal">Batal</button>
+          <button class="btn-modal" id="btnEdit">Edit</button>
+          <button class="btn-modal btn-modal-primary" id="btnOk">Ok</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- #Modal Detail -->
+    <div id="detailModal" class="modal">
+      <div class="modal-content-detail">
+        <span class="close" id="closeDetail">&times;</span>
+        <h2>Detail Permintaan</h2>
+        <div id="detailContent"></div>
+      </div>
+    </div>
+
+    <!-- #Script Aplikasi (menggunakan localStorage) -->
+    <script>
+      // ======= Utility & state =======
+      const ROLE = localStorage.getItem("userRole") || null;
+      if (!ROLE) {
+        // belum login -> kembali ke login
+        window.location.href = "login.html";
+      }
+
+      const isAdmin = ROLE === "admin";
+      const ticketsKey = "helpdesk_tickets_v1";
+      let tickets = []; // array of ticket objects
+      let lastCreatedId = 0;
+      let pendingTempTicketId = null;
+
+      // ======= Dummy seed data jika kosong =======
+      function seedIfEmpty() {
+        const saved = localStorage.getItem(ticketsKey);
+        if (saved) {
+          tickets = JSON.parse(saved);
+          lastCreatedId = tickets.reduce((mx, t) => Math.max(mx, t.id), 0);
+          return;
+        }
+
+        // buat dummy: 3 antrian, 2 dikerjakan, 4 selesai
+        const now = Date.now();
+        tickets = [
+          // Dalam Antrian (3)
+          {
+            id: 1,
+            judul_masalah: "Printer tidak merespon",
+            deskripsi_masalah: "Printer tidak muncul di daftar perangkat",
+            ruangan: "Ruang Kantor A",
+            kategori: "Printer",
+            lampiran: null,
+            nomor_whatsapp: "081234567890",
+            email: "",
+            status: "antrian",
+            tanggal: now - 1000 * 60 * 60 * 24,
+          },
+          {
+            id: 2,
+            judul_masalah: "WiFi putus-putus",
+            deskripsi_masalah: "Sinyal lemah di lantai 2",
+            ruangan: "Ruang Kantor B",
+            kategori: "Jaringan",
+            lampiran: null,
+            nomor_whatsapp: "081234567891",
+            email: "",
+            status: "antrian",
+            tanggal: now - 1000 * 60 * 60 * 23,
+          },
+          {
+            id: 3,
+            judul_masalah: "Komputer lambat",
+            deskripsi_masalah: "Proses startup sangat lama",
+            ruangan: "Ruang Meeting",
+            kategori: "Komputer",
+            lampiran: null,
+            nomor_whatsapp: "081234567892",
+            email: "",
+            status: "antrian",
+            tanggal: now - 1000 * 60 * 60 * 22,
+          },
+
+          // Sedang Dikerjakan (2)
+          {
+            id: 4,
+            judul_masalah: "Software tidak bisa install",
+            deskripsi_masalah: "Error 403 saat install aplikasi",
+            ruangan: "Ruang Server",
+            kategori: "Software",
+            lampiran: null,
+            nomor_whatsapp: "081234567893",
+            email: "",
+            status: "dikerjakan",
+            tanggal: now - 1000 * 60 * 60 * 21,
+          },
+          {
+            id: 5,
+            judul_masalah: "Koneksi kabel putus",
+            deskripsi_masalah: "Kabel ethernet terkelupas",
+            ruangan: "Ruang Direktur",
+            kategori: "Jaringan",
+            lampiran: null,
+            nomor_whatsapp: "081234567894",
+            email: "",
+            status: "dikerjakan",
+            tanggal: now - 1000 * 60 * 60 * 20,
+          },
+
+          // Selesai (4)
+          {
+            id: 6,
+            judul_masalah: "Keyboard rusak",
+            deskripsi_masalah: "Tuts beberapa tidak berfungsi",
+            ruangan: "Ruang Kantor A",
+            kategori: "Komputer",
+            lampiran: null,
+            nomor_whatsapp: "081234567895",
+            email: "",
+            status: "selesai",
+            tanggal: now - 1000 * 60 * 60 * 19,
+          },
+          {
+            id: 7,
+            judul_masalah: "Update printer driver",
+            deskripsi_masalah: "Driver diperbarui",
+            ruangan: "Ruang Kantor B",
+            kategori: "Printer",
+            lampiran: null,
+            nomor_whatsapp: "081234567896",
+            email: "",
+            status: "selesai",
+            tanggal: now - 1000 * 60 * 60 * 18,
+          },
+          {
+            id: 8,
+            judul_masalah: "Akses server",
+            deskripsi_masalah: "User lupa password",
+            ruangan: "Ruang Server",
+            kategori: "Software",
+            lampiran: null,
+            nomor_whatsapp: "081234567897",
+            email: "",
+            status: "selesai",
+            tanggal: now - 1000 * 60 * 60 * 17,
+          },
+          {
+            id: 9,
+            judul_masalah: "Reset modem",
+            deskripsi_masalah: "Modem direstart dan ok",
+            ruangan: "Ruang Kantor A",
+            kategori: "Jaringan",
+            lampiran: null,
+            nomor_whatsapp: "081234567898",
+            email: "",
+            status: "selesai",
+            tanggal: now - 1000 * 60 * 60 * 16,
+          },
+        ];
+
+        lastCreatedId = 9;
+        saveTickets();
+      }
+
+      function saveTickets() {
+        localStorage.setItem(ticketsKey, JSON.stringify(tickets));
+      }
+
+      // ======= Render functions =======
+      function loadTicketsToUI() {
+        const antrian = tickets.filter((t) => t.status === "antrian");
+        const dikerjakan = tickets.filter((t) => t.status === "dikerjakan");
+        const selesai = tickets.filter((t) => t.status === "selesai");
+
+        renderList("antrianList", antrian, "antrian");
+        renderList("dikerjakanList", dikerjakan, "dikerjakan");
+        renderList("selesaiList", selesai, "selesai");
+
+        document.getElementById(
+          "totalAntrian"
+        ).textContent = `${antrian.length} total permintaan`;
+        document.getElementById(
+          "totalDikerjakan"
+        ).textContent = `${dikerjakan.length} total permintaan`;
+        document.getElementById(
+          "totalSelesai"
+        ).textContent = `${selesai.length} total permintaan`;
+
+        loadRiwayatTable(selesai);
+      }
+
+      function renderList(containerId, list, status) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = "";
+        list.forEach((ticket) => {
+          const date = new Date(ticket.tanggal);
+          const tanggal = date.toLocaleDateString("id-ID");
+          const waktu = date.toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+          const card = document.createElement("div");
+          card.className = "ticket-card";
+          card.innerHTML = `
+          <p class="ticket-desc">${escapeHtml(ticket.judul_masalah)}</p>
+          <p class="ticket-date">${tanggal} - ${waktu}</p>
+        `;
+          const actions = document.createElement("div");
+          actions.className = "ticket-actions";
+
+          const btnView = document.createElement("button");
+          btnView.className = "btn-view";
+          btnView.textContent = "View";
+          btnView.onclick = () => viewDetail(ticket.id);
+          actions.appendChild(btnView);
+
+          if (isAdmin) {
+            if (status === "antrian") {
+              const btnKerjakan = document.createElement("button");
+              btnKerjakan.className = "btn-action btn-work";
+              btnKerjakan.textContent = "Kerjakan";
+              btnKerjakan.onclick = () => updateStatus(ticket.id, "dikerjakan");
+              actions.appendChild(btnKerjakan);
+            } else if (status === "dikerjakan") {
+              const btnSelesai = document.createElement("button");
+              btnSelesai.className = "btn-action btn-complete";
+              btnSelesai.textContent = "Selesai";
+              btnSelesai.onclick = () => updateStatus(ticket.id, "selesai");
+              actions.appendChild(btnSelesai);
+            } else if (status === "selesai") {
+              const btnHapus = document.createElement("button");
+              btnHapus.className = "btn-action btn-delete";
+              btnHapus.textContent = "Hapus";
+              btnHapus.onclick = () => deleteTicket(ticket.id);
+              actions.appendChild(btnHapus);
+            }
+          }
+
+          card.appendChild(actions);
+          container.appendChild(card);
+        });
+      }
+
+      function loadRiwayatTable(selesaiTickets) {
+        const tbody = document.getElementById("riwayatTableBody");
+        tbody.innerHTML = "";
+        selesaiTickets.forEach((t, idx) => {
+          const tr = document.createElement("tr");
+          const date = new Date(t.tanggal);
+          const tanggal = date.toLocaleDateString("id-ID");
+          tr.innerHTML = `
+          <td>#${String(idx + 1).padStart(3, "0")}</td>
+          <td>${escapeHtml(t.judul_masalah)}</td>
+          <td>${tanggal}</td>
+          <td><span class="status-badge status-selesai">Selesai</span></td>
+          <td><button class="btn-detail">Lihat Detail</button></td>
+        `;
+          tr.querySelector(".btn-detail").onclick = () => viewDetail(t.id);
+          tbody.appendChild(tr);
+        });
+      }
+
+      // ======= Actions =======
+      function updateStatus(id, newStatus) {
+        const idx = tickets.findIndex((t) => t.id === id);
+        if (idx === -1) return;
+        tickets[idx].status = newStatus;
+        saveTickets();
+        loadTicketsToUI();
+      }
+
+      function deleteTicket(id) {
+        if (!confirm("Apakah Anda yakin ingin menghapus permintaan ini?"))
+          return;
+        tickets = tickets.filter((t) => t.id !== id);
+        saveTickets();
+        loadTicketsToUI();
+      }
+
+      function viewDetail(id) {
+        const t = tickets.find((x) => x.id === id);
+        if (!t) return;
+        const date = new Date(t.tanggal);
+        const tanggal = date.toLocaleDateString("id-ID");
+        const waktu = date.toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+        const html = `
+        <div class="detail-item"><strong>Judul:</strong> ${escapeHtml(
+          t.judul_masalah
+        )}</div>
+        <div class="detail-item"><strong>Deskripsi:</strong> ${escapeHtml(
+          t.deskripsi_masalah
+        )}</div>
+        <div class="detail-item"><strong>Ruangan:</strong> ${escapeHtml(
+          t.ruangan
+        )}</div>
+        <div class="detail-item"><strong>Kategori:</strong> ${escapeHtml(
+          t.kategori
+        )}</div>
+        <div class="detail-item"><strong>WhatsApp:</strong> ${escapeHtml(
+          t.nomor_whatsapp
+        )}</div>
+        ${
+          t.email
+            ? `<div class="detail-item"><strong>Email:</strong> ${escapeHtml(
+                t.email
+              )}</div>`
+            : ""
+        }
+        <div class="detail-item"><strong>Tanggal:</strong> ${tanggal} ${waktu}</div>
+        <div class="detail-item"><strong>Status:</strong> ${escapeHtml(
+          t.status
+        )}</div>
+        ${
+          t.lampiran
+            ? `<div class="detail-item"><strong>Lampiran:</strong><br/><img src="${t.lampiran}" style="max-width:100%;margin-top:8px;border-radius:8px;"></div>`
+            : ""
+        }
+      `;
+        document.getElementById("detailContent").innerHTML = html;
+        document.getElementById("detailModal").style.display = "flex";
+      }
+
+      // ======= Submit permintaan =======
+      document
+        .getElementById("formPermintaan")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          // baca lampiran (image) sebagai dataURL bila ada
+          const fileInput = document.getElementById("lampiran");
+          let lampiranData = null;
+          if (fileInput.files && fileInput.files[0]) {
+            lampiranData = await readFileAsDataURL(fileInput.files[0]);
+          }
+
+          const newTicket = {
+            id: ++lastCreatedId,
+            judul_masalah: document.getElementById("judulMasalah").value.trim(),
+            deskripsi_masalah: document
+              .getElementById("deskripsiMasalah")
+              .value.trim(),
+            ruangan: document.getElementById("ruangan").value,
+            kategori: document.getElementById("kategori").value,
+            lampiran: lampiranData,
+            nomor_whatsapp: document
+              .getElementById("nomorWhatsapp")
+              .value.trim(),
+            email: document.getElementById("email").value.trim(),
+            status: "antrian",
+            tanggal: Date.now(),
+          };
+
+          tickets.unshift(newTicket);
+          saveTickets();
+          pendingTempTicketId = newTicket.id;
+
+          // tampilkan modal konfirmasi
+          document.getElementById("konfirmasiModal").style.display = "flex";
+        });
+
+      // Konfirmasi modal buttons
+      document
+        .getElementById("btnBatal")
+        .addEventListener("click", function () {
+          if (pendingTempTicketId) {
+            // hapus ticket
+            tickets = tickets.filter((t) => t.id !== pendingTempTicketId);
+            saveTickets();
+            pendingTempTicketId = null;
+          }
+          document.getElementById("konfirmasiModal").style.display = "none";
+          document.getElementById("formPermintaan").reset();
+        });
+
+      document.getElementById("btnEdit").addEventListener("click", function () {
+        // tutup modal, biarkan user edit form (ticket masih ada)
+        document.getElementById("konfirmasiModal").style.display = "none";
+      });
+
+      document.getElementById("btnOk").addEventListener("click", function () {
+        document.getElementById("konfirmasiModal").style.display = "none";
+        document.getElementById("formPermintaan").reset();
+        pendingTempTicketId = null;
+        showPage("dashboard");
+        loadTicketsToUI();
+      });
+
+      // ======= Page switching & logout =======
+      document.querySelectorAll(".nav-btn").forEach((b) => {
+        b.addEventListener("click", function (ev) {
+          const page = this.getAttribute("data-page");
+          showPage(page, ev);
+        });
+      });
+
+      function showPage(pageName, ev) {
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("active"));
+        document.getElementById(pageName).classList.add("active");
+        // nav active
+        document
+          .querySelectorAll(".nav-btn")
+          .forEach((n) => n.classList.remove("active"));
+        if (ev && ev.currentTarget) ev.currentTarget.classList.add("active");
+        // load when needed
+        if (pageName === "dashboard") loadTicketsToUI();
+        if (pageName === "riwayat") loadTicketsToUI();
+      }
+
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", function () {
+          localStorage.removeItem("userRole");
+          window.location.href = "login.html";
+        });
+
+      // close modals on click outside or close btn
+      window.onclick = function (ev) {
+        if (ev.target.className === "modal") {
+          ev.target.style.display = "none";
+        }
+      };
+      document.getElementById("closeDetail").onclick = () =>
+        (document.getElementById("detailModal").style.display = "none");
+
+      // ======= Helpers =======
+      function readFileAsDataURL(file) {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function escapeHtml(text) {
+        if (!text && text !== 0) return "";
+        return String(text)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      // ======= Inisialisasi =======
+      seedIfEmpty();
+      // atur tampilan tombol admin-only: jika bukan admin, sembunyikan action button style tidak muncul (fungsi sudah memeriksa isAdmin)
+      // load UI awal
+      loadTicketsToUI();
+    </script>
+  </body>
+</html>
